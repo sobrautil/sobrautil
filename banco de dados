@@ -1,0 +1,160 @@
+CREATE DATABASE sobrautil;
+
+USE sobrautil;
+
+
+CREATE TABLE Usuario (
+
+    idUsuario INT AUTO_INCREMENT PRIMARY KEY,
+
+    email VARCHAR(100),
+
+    senha VARCHAR(100),
+
+    telefone VARCHAR(20),
+
+    statusCadastro VARCHAR(20)
+
+);
+
+
+CREATE TABLE Doador (
+
+    idDoador INT AUTO_INCREMENT PRIMARY KEY,
+
+    idUsuario INT,
+
+    cnpj VARCHAR(20),
+
+    razaoSocial VARCHAR(100),
+
+    regimeTributario VARCHAR(50),
+
+    FOREIGN KEY (idUsuario) REFERENCES Usuario(idUsuario)
+
+);
+
+
+CREATE TABLE ONG (
+
+    idONG INT AUTO_INCREMENT PRIMARY KEY,
+
+    idUsuario INT,
+
+    cnpj VARCHAR(20),
+
+    nomeInstituicao VARCHAR(100),
+
+    FOREIGN KEY (idUsuario) REFERENCES Usuario(idUsuario)
+
+);
+
+
+CREATE TABLE LoteAlimento (
+
+    idLote INT AUTO_INCREMENT PRIMARY KEY,
+
+    idDoador INT,
+
+    descricao VARCHAR(200),
+
+    quantidadeKg DECIMAL(10,2),
+
+    dataValidade DATE,
+
+    valorCustoTotal DECIMAL(10,2),
+
+    status VARCHAR(20),
+
+    FOREIGN KEY (idDoador) REFERENCES Doador(idDoador)
+
+);
+
+
+CREATE TABLE Doacao (
+
+    idDoacao INT AUTO_INCREMENT PRIMARY KEY,
+
+    idLote INT,
+
+    idONG INT,
+
+    dataReserva DATETIME,
+
+    tokenQRCode VARCHAR(100),
+
+    statusDoacao VARCHAR(20),
+
+    FOREIGN KEY (idLote) REFERENCES LoteAlimento(idLote),
+
+    FOREIGN KEY (idONG) REFERENCES ONG(idONG)
+
+);
+
+
+CREATE TABLE RelatorioFiscal (
+
+    idRelatorio INT AUTO_INCREMENT PRIMARY KEY,
+
+    idDoador INT,
+
+    mesAnoRef VARCHAR(10),
+
+    valorTotalCusto DECIMAL(10,2),
+
+    valorIncentivoEst DECIMAL(10,2),
+
+    FOREIGN KEY (idDoador) REFERENCES Doador(idDoador)
+
+);
+
+
+INSERT INTO Usuario (email, senha, telefone, statusCadastro) VALUES
+
+('mercado@gmail.com', '7896532', '11987654321', 'Ativo'),
+
+('padariamercado@gmail.com', 'senha499', '11976543210', 'Ativo'),
+
+('ong@gmail.com', 'senha987', '11965432109', 'Ativo'),
+
+('adm1@gmail.com', 'senha159', '11954321098', 'Ativo');
+
+
+INSERT INTO Doador (idUsuario, cnpj, razaoSocial, regimeTributario) VALUES
+
+(1, '12.345.678/0001-90', 'Supermercado Bom Preço Ltda', 'Lucro Real'),
+
+(2, '98.765.432/0001-10', 'Padaria e Confeitaria São José Ltda', 'Lucro Real');
+
+
+INSERT INTO ONG (idUsuario, cnpj, nomeInstituicao) VALUES
+
+(3, '11.222.333/0001-44', 'ONG Sopa da Esperança'),
+
+(4, '55.666.777/0001-88', 'Instituto Vida e Acolhimento');
+
+
+INSERT INTO LoteAlimento (idDoador, descricao, quantidadeKg, dataValidade, valorCustoTotal, status) VALUES
+
+(1, 'Caixas de Hortifrúti (Tomate e Cenoura)', 150.00, '2026-10-05', 450.00, 'Reservado'),
+
+(1, 'Fardos de Arroz e Feijão (Próximos do vencimento)', 200.00, '2026-10-15', 800.00, 'Disponível'),
+
+(2, 'Lote de Pães Franceses e Brioches do dia anterior', 40.00, '2026-10-02', 120.00, 'Concluído');
+
+
+INSERT INTO Doacao (idLote, idONG, dataReserva, tokenQRCode, statusDoacao) VALUES
+
+(1, 1, '2026-09-29 14:30:00', 'QR-SOBRAUTIL-99881', 'Reservado'),
+
+(3, 2, '2026-09-28 09:15:00', 'QR-SOBRAUTIL-11223', 'Concluído');
+
+
+INSERT INTO RelatorioFiscal (idDoador, mesAnoRef, valorTotalCusto, valorIncentivoEst) VALUES
+
+(1, '09/2026', 1250.00, 425.00),
+
+(2, '09/2026', 120.00, 40.80);
+
+
+select * from RelatorioFiscal;
