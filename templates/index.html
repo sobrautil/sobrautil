@@ -1,0 +1,150 @@
+
+{% extends "base.html" %}
+{% block title %}Sobrautil | Alimento que transforma{% endblock %}
+
+{% block conteudo %}
+
+<!-- BANNER PRINCIPAL -->
+<section class="hero-image"
+    role="img"
+    aria-label="Banner Sobrautil com colagem urbana e mensagens de conscientização social">
+</section>
+
+<!-- COMO O SITE FUNCIONA -->
+<section class="how-it-works section" id="como-funciona">
+    <div class="section-heading">
+        <span class="eyebrow green">COMO FUNCIONA</span>
+        <h2>Juntos, transformamos alimentos em esperança</h2>
+        <p>
+            O Sobraútil é uma plataforma que conecta supermercados, restaurantes e 
+            estabelecimentos comerciais a ONGs e entidades assistenciais. Por meio da geolocalização 
+            em tempo real e da validação segura via QR Code, otimizamos o destino de excedentes alimentares e 
+            reduzimos custos logísticos. Além disso, nosso Módulo Contador automatiza a apuração de incentivos fiscais para 
+            empresas doadoras, transformando o combate ao desperdício em uma ação simples, transparente e vantajosa para todos.
+        </p>
+    </div>
+
+    <div class="feature-grid">
+        <article class="feature-card">
+            <span class="feature-icon">↗</span>
+            <h3>1. Cadastre os alimentos</h3>
+            <p>
+                Os doadores cadastram os lotes disponíveis, informando
+                a quantidade, a descrição e a data de validade.
+            </p>
+        </article>
+
+        <article class="feature-card">
+            <span class="feature-icon">♡</span>
+            <h3>2. Conecte instituições</h3>
+            <p>
+                ONGs e instituições parceiras podem consultar os alimentos
+                disponíveis para atender às necessidades de suas comunidades.
+            </p>
+        </article>
+
+        <article class="feature-card">
+            <span class="feature-icon">▤</span>
+            <h3>3. Acompanhe os resultados</h3>
+            <p>
+                As informações sobre lotes, doações e custos ajudam a
+                acompanhar as ações com mais organização e transparência.
+            </p>
+        </article>
+    </div>
+</section>
+
+<!-- FAÇA PARTE -->
+<section class="cta section">
+    <div>
+        <span class="eyebrow green">FAÇA PARTE</span>
+        <h2>Um pequeno gesto pode alimentar uma grande mudança.</h2>
+        <p>
+            Ajude a reduzir o desperdício de alimentos e contribua
+            para construir uma rede de solidariedade.
+        </p>
+    </div>
+
+    <a class="btn btn-green btn-large"
+       href="{{ url_for('login') }}">
+        ACESSAR O SISTEMA
+    </a>
+</section>
+
+<!-- FAIXA VERDE COM ESTATÍSTICAS -->
+<section class="stats-band">
+    <div>
+        <strong>{{ dados.total_lotes if dados else '—' }}</strong>
+        <span>lotes cadastrados</span>
+    </div>
+
+    <div>
+        <strong>{{ dados.lotes_disponiveis if dados else '—' }}</strong>
+        <span>lotes disponíveis</span>
+    </div>
+
+    <div>
+        <strong>{{ dados.total_doacoes if dados else '—' }}</strong>
+        <span>doações registradas</span>
+    </div>
+
+    <div>
+        <strong>{{ dados.total_ongs if dados else '—' }}</strong>
+        <span>instituições parceiras</span>
+    </div>
+</section>
+
+{% if erro_db %}
+<p class="container notice">
+    Não foi possível carregar os números. Confira as configurações em config.py.
+</p>
+{% endif %}
+
+<!-- NOSSO PROPÓSITO -->
+<section class="intro section" id="nosso-proposito">
+    <div class="section-heading">
+        <span class="eyebrow green">NOSSO PROPÓSITO</span>
+        <h2>Uma rede que faz a diferença</h2>
+        <p>
+            Transformamos excedentes alimentares em oportunidades de cuidado,
+            com organização e transparência.
+        </p>
+    </div>
+
+    <div class="feature-grid">
+        <article class="feature-card">
+            <span class="feature-icon">↗</span>
+            <h3>Para doadores</h3>
+            <p>
+                Cadastre lotes de alimentos e acompanhe suas doações.
+            </p>
+            <a href="{{ url_for('doadores') }}">
+                Conheça os doadores →
+            </a>
+        </article>
+
+        <article class="feature-card">
+            <span class="feature-icon">♡</span>
+            <h3>Para instituições</h3>
+            <p>
+                ONGs e instituições podem receber alimentos para suas comunidades.
+            </p>
+            <a href="{{ url_for('ongs') }}">
+                Ver instituições →
+            </a>
+        </article>
+
+        <article class="feature-card">
+            <span class="feature-icon">▤</span>
+            <h3>Transparência fiscal</h3>
+            <p>
+                Consulte os registros de custo e os incentivos estimados.
+            </p>
+            <a href="{{ url_for('relatorios') }}">
+                Ver relatórios →
+            </a>
+        </article>
+    </div>
+</section>
+
+{% endblock %}

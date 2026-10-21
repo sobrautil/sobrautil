@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Relatórios fiscais | Sobrautil{% endblock %}
+{% block conteudo %}
+<section class="page-banner compact"><span class="eyebrow">TRANSPARÊNCIA</span><h1>Módulo contador</h1><p>Resumo dos custos registrados e dos incentivos estimados para os doadores.</p></section>
+<section class="section">
+    <div class="dashboard-grid two">
+        <article class="metric-card"><span>Custos totais registrados</span><strong>R$ {{ '%.2f'|format(totais.custos or 0) }}</strong></article>
+        <article class="metric-card"><span>Incentivos estimados</span><strong>R$ {{ '%.2f'|format(totais.incentivos or 0) }}</strong></article>
+    </div>
+    <h2 class="table-title">Relatórios fiscais</h2>
+    <div class="table-wrap"><table><thead><tr><th>ID</th><th>Doador</th><th>Mês de referência</th><th>Custo total</th><th>Incentivo estimado</th></tr></thead>
+    <tbody>{% for relatorio in relatorios %}
+    <tr><td>{{ relatorio.idRelatorio }}</td><td>{{ relatorio.razaoSocial or '—' }}</td><td>{{ relatorio.mesAnoRef }}</td><td>R$ {{ '%.2f'|format(relatorio.valorTotalCusto or 0) }}</td><td>R$ {{ '%.2f'|format(relatorio.valorIncentivoEst or 0) }}</td></tr>
+    {% else %}<tr><td colspan="5" class="empty">Nenhum relatório fiscal cadastrado.</td></tr>{% endfor %}</tbody></table></div>
+</section>
+{% endblock %}

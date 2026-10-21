@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Entrar | Sobrautil{% endblock %}
+{% block conteudo %}
+<section class="auth-page">
+    <div class="auth-card">
+        <span class="eyebrow green">BEM-VINDO DE VOLTA</span>
+        <h1>Entrar no Sobrautil</h1>
+        <p>Acesse sua conta para acompanhar o sistema.</p>
+        <form method="POST" action="{{ url_for('login') }}">
+            <label for="email">E-mail</label>
+            <input id="email" type="email" name="email" placeholder="seuemail@exemplo.com" required>
+            <label for="senha">Senha</label>
+            <input id="senha" type="password" name="senha" placeholder="Digite sua senha" required>
+            <button class="btn btn-green btn-full" type="submit">ENTRAR</button>
+        </form>
+        <p class="form-note">Para esta versão inicial, o acesso usa os usuários existentes na tabela Usuario.</p>
+    </div>
+</section>
+{% endblock %}

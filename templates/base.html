@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Sobrautil{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header class="topbar">
+        <a class="brand" href="{{ url_for('index') }}" aria-label="Sobrautil - início">
+            <span class="brand-mark">♻</span>
+            <span class="brand-name">SOBRA<span>UTIL</span></span>
+        </a>
+        <nav class="main-nav">
+            <a href="{{ url_for('index') }}#como-funciona">COMO FUNCIONA</a>
+            <a href="{{ url_for('doadores') }}">PARA DOADORES</a>
+            <a href="{{ url_for('relatorios') }}">MÓDULO CONTADOR</a>
+            <a href="{{ url_for('sobre') }}">SOBRE NÓS</a>
+        </nav>
+        <div class="nav-actions">
+            {% if session.get('idUsuario') %}
+                <a class="btn btn-light" href="{{ url_for('painel') }}">MEU PAINEL</a>
+                <a class="btn btn-bright" href="{{ url_for('sair') }}">SAIR</a>
+            {% else %}
+                <a class="btn btn-light" href="{{ url_for('login') }}">ENTRAR</a>
+                <a class="btn btn-bright" href="{{ url_for('login') }}">CADASTRAR/DOAR</a>
+            {% endif %}
+        </div>
+    </header>
+
+    {% with mensagens = get_flashed_messages(with_categories=true) %}
+      {% if mensagens %}
+        <section class="flash-wrap">
+          {% for categoria, mensagem in mensagens %}
+            <div class="flash {{ categoria }}">{{ mensagem }}</div>
+          {% endfor %}
+        </section>
+      {% endif %}
+    {% endwith %}
+
+    <main>
+        {% block conteudo %}{% endblock %}
+    </main>
+    <footer class="footer">
+        <span>© 2026 Sobrautil</span>
+        <span>Conectando alimentos a quem precisa.</span>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}Sobre nós | Sobrautil{% endblock %}
+{% block conteudo %}
+<section class="page-banner"><span class="eyebrow">NOSSA MISSÃO</span><h1>Alimento é cuidado.</h1><p>O Sobrautil busca aproximar empresas que possuem excedentes alimentares de instituições que apoiam pessoas em situação de vulnerabilidade.</p></section>
+<section class="section about-copy"><h2>Como funciona</h2><p>Os doadores registram os lotes de alimentos, as instituições podem acompanhar as oportunidades de doação e os registros ajudam a manter a transparência sobre custos e incentivos estimados.</p><a class="btn btn-green" href="{{ url_for('lotes') }}">CONSULTAR LOTES</a></section>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Lotes de alimentos | Sobrautil{% endblock %}
+{% block conteudo %}
+<section class="page-banner compact">
+    <span class="eyebrow">ALIMENTOS COM NOVO DESTINO</span><h1>Lotes de alimentos</h1>
+    <p>Consulte os alimentos cadastrados, seus doadores, validade e disponibilidade.</p>
+</section>
+<section class="section">
+    <div class="list-heading"><h2>Lotes cadastrados</h2><a class="btn btn-green" href="{{ url_for('novo_lote') }}">+ Novo lote</a></div>
+    <div class="table-wrap"><table>
+        <thead><tr><th>ID</th><th>Descrição</th><th>Doador</th><th>Quantidade</th><th>Validade</th><th>Custo total</th><th>Status</th></tr></thead>
+        <tbody>
+        {% for lote in lotes %}
+        <tr><td>{{ lote.idLote }}</td><td>{{ lote.descricao }}</td><td>{{ lote.razaoSocial or '—' }}</td><td>{{ '%.2f'|format(lote.quantidadeKg or 0) }} kg</td><td>{{ lote.dataValidade.strftime('%d/%m/%Y') if lote.dataValidade else '—' }}</td><td>R$ {{ '%.2f'|format(lote.valorCustoTotal or 0) }}</td><td><span class="status">{{ lote.status }}</span></td></tr>
+        {% else %}<tr><td colspan="7" class="empty">Nenhum lote cadastrado.</td></tr>{% endfor %}
+        </tbody>
+    </table></div>
+</section>
+{% endblock %}

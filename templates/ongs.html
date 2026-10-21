@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Instituições | Sobrautil{% endblock %}
+{% block conteudo %}
+<section class="page-banner compact"><span class="eyebrow">QUEM RECEBE</span><h1>Instituições parceiras</h1><p>Conheça as organizações cadastradas na rede Sobrautil.</p></section>
+<section class="section"><div class="table-wrap"><table><thead><tr><th>Instituição</th><th>CNPJ</th><th>E-mail</th><th>Telefone</th></tr></thead><tbody>
+{% for ong in ongs %}<tr><td>{{ ong.nomeInstituicao }}</td><td>{{ ong.cnpj }}</td><td>{{ ong.email or '—' }}</td><td>{{ ong.telefone or '—' }}</td></tr>
+{% else %}<tr><td colspan="4" class="empty">Nenhuma instituição cadastrada.</td></tr>{% endfor %}
+</tbody></table></div></section>
+{% endblock %}

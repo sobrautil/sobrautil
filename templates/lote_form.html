@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Novo lote | Sobrautil{% endblock %}
+{% block conteudo %}
+<section class="auth-page">
+    <div class="auth-card wide">
+        <span class="eyebrow green">CADASTRO DE ALIMENTO</span><h1>Cadastrar novo lote</h1>
+        <p>Informe os dados do lote que será disponibilizado para doação.</p>
+        <form method="POST" action="{{ url_for('novo_lote') }}">
+            <label for="idDoador">Doador</label>
+            <select id="idDoador" name="idDoador" required>
+                <option value="">Selecione um doador</option>
+                {% for doador in doadores %}<option value="{{ doador.idDoador }}">{{ doador.razaoSocial }}</option>{% endfor %}
+            </select>
+            <label for="descricao">Descrição dos alimentos</label><input id="descricao" name="descricao" maxlength="200" required>
+            <div class="form-row">
+                <div><label for="quantidadeKg">Quantidade (kg)</label><input id="quantidadeKg" name="quantidadeKg" type="number" min="0.01" step="0.01" required></div>
+                <div><label for="dataValidade">Data de validade</label><input id="dataValidade" name="dataValidade" type="date" required></div>
+            </div>
+            <div class="form-row">
+                <div><label for="valorCustoTotal">Custo total (R$)</label><input id="valorCustoTotal" name="valorCustoTotal" type="number" min="0" step="0.01" value="0.00" required></div>
+                <div><label for="status">Status</label><select id="status" name="status" required><option>Disponível</option><option>Reservado</option><option>Concluído</option></select></div>
+            </div>
+            <button class="btn btn-green btn-full" type="submit">SALVAR LOTE</button>
+        </form>
+        <a class="back-link" href="{{ url_for('lotes') }}">← Voltar para lotes</a>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Doadores | Sobrautil{% endblock %}
+{% block conteudo %}
+<section class="page-banner compact"><span class="eyebrow">REDE DE PARCEIROS</span><h1>Para doadores</h1><p>Empresas que contribuem para reduzir o desperdício de alimentos.</p></section>
+<section class="section"><div class="table-wrap"><table><thead><tr><th>Empresa</th><th>CNPJ</th><th>Regime tributário</th><th>E-mail</th><th>Telefone</th></tr></thead><tbody>
+{% for doador in doadores %}<tr><td>{{ doador.razaoSocial }}</td><td>{{ doador.cnpj }}</td><td>{{ doador.regimeTributario }}</td><td>{{ doador.email or '—' }}</td><td>{{ doador.telefone or '—' }}</td></tr>
+{% else %}<tr><td colspan="5" class="empty">Nenhum doador cadastrado.</td></tr>{% endfor %}
+</tbody></table></div></section>
+{% endblock %}

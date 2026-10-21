@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Painel | Sobrautil{% endblock %}
+{% block conteudo %}
+<section class="page-banner">
+    <span class="eyebrow">ÁREA DO USUÁRIO</span>
+    <h1>Painel Sobrautil</h1>
+    <p>Olá, {{ session.get('email') }}. Acompanhe os principais números do projeto.</p>
+</section>
+<section class="section">
+    <div class="dashboard-grid">
+        <article class="metric-card"><span>Lotes cadastrados</span><strong>{{ dados.total_lotes }}</strong><a href="{{ url_for('lotes') }}">Ver lotes →</a></article>
+        <article class="metric-card"><span>Lotes disponíveis</span><strong>{{ dados.lotes_disponiveis }}</strong><a href="{{ url_for('lotes') }}">Consultar alimentos →</a></article>
+        <article class="metric-card"><span>Doações registradas</span><strong>{{ dados.total_doacoes }}</strong><a href="{{ url_for('doacoes') }}">Ver doações →</a></article>
+        <article class="metric-card"><span>ONGs cadastradas</span><strong>{{ dados.total_ongs }}</strong><a href="{{ url_for('ongs') }}">Ver instituições →</a></article>
+    </div>
+    <div class="quick-actions">
+        <h2>Acesso rápido</h2>
+        <a class="btn btn-green" href="{{ url_for('novo_lote') }}">+ Cadastrar lote</a>
+        <a class="btn btn-outline-green" href="{{ url_for('relatorios') }}">Consultar relatórios fiscais</a>
+    </div>
+</section>
+{% endblock %}

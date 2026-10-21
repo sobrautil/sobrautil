@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Doações | Sobrautil{% endblock %}
+{% block conteudo %}
+<section class="page-banner compact"><span class="eyebrow">SOLIDARIEDADE EM MOVIMENTO</span><h1>Doações</h1><p>Acompanhe as reservas e os registros de doação.</p></section>
+<section class="section"><div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Alimento</th><th>Quantidade</th><th>Instituição</th><th>Data da reserva</th><th>Token QR Code</th><th>Status</th></tr></thead>
+<tbody>{% for doacao in doacoes %}
+<tr><td>{{ doacao.idDoacao }}</td><td>{{ doacao.descricao or '—' }}</td><td>{{ '%.2f'|format(doacao.quantidadeKg or 0) }} kg</td><td>{{ doacao.nomeInstituicao or '—' }}</td><td>{{ doacao.dataReserva.strftime('%d/%m/%Y %H:%M') if doacao.dataReserva else '—' }}</td><td>{{ doacao.tokenQRCode or '—' }}</td><td><span class="status">{{ doacao.statusDoacao }}</span></td></tr>
+{% else %}<tr><td colspan="7" class="empty">Nenhuma doação registrada.</td></tr>{% endfor %}</tbody>
+</table></div></section>
+{% endblock %}
