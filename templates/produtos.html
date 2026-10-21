@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SobraUtil - Alimentos</title>
+
+    <style>
+        :root {
+            --primary-color: #2e7d32;
+            --primary-hover: #1b5e20;
+            --background-bg: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-primary: #2c3e50;
+            --text-secondary: #666666;
+            --border-color: #e0e0e0;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --radius: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--background-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+        }
+
+        header h1 {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 600;
+            margin: 0 8px;
+            transition: color 0.2s;
+        }
+
+        nav a:hover {
+            color: var(--primary-color);
+        }
+
+        main {
+            max-width: 1100px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        section h2 {
+            font-size: 1.4rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 0.4rem;
+        }
+
+        article {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 1.2rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        footer {
+            background-color: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>SobraUtil</h1>
+        <nav>
+            <a href="/">Início</a> |
+            <a href="/produtos">Alimentos</a> |
+            <a href="/buscar">Buscar</a> |
+            <a href="/sobre">Sobre</a> |
+            <a href="/contato">Contato</a>
+        </nav>
+    </header>
+
+    <main>
+        <section>
+            <h2>Alimentos Disponíveis</h2>
+
+            {% if lotes %}
+                {% for lote in lotes %}
+                    <article>
+                        <h3>{{ lote.descricao }}</h3>
+                        <p>Quantidade: {{ lote.quantidadeKg }} kg</p>
+                        <p>Validade: {{ lote.dataValidade }}</p>
+                        <p>Valor: R$ {{ lote.valorCustoTotal }}</p>
+                        <p>Status: {{ lote.status }}</p>
+                        <p>Doador: {{ lote.razaoSocial }}</p>
+                    </article>
+                {% endfor %}
+            {% else %}
+                <p>Nenhum lote de alimento cadastrado no momento.</p>
+            {% endif %}
+        </section>
+    </main>
+
+    <footer>
+        <p>SobraUtil - Plataforma de doação de alimentos</p>
+        <p>© 2026 SobraUtil</p>
+    </footer>
+
+</body>
+
+</html>

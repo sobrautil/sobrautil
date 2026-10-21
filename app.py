@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from decimal import Decimal, InvalidOperation
 from functools import wraps
 from flask import Flask, render_template, request, redirect, url_for, session, flash
@@ -7,12 +8,51 @@ from config import DB_CONFIG
 
 app = Flask(__name__)
 app.secret_key = "troque-esta-chave-por-uma-chave-secreta"
+=======
+from flask import Flask, render_template
+import mysql.connector
+from config import DB_CONFIG
+
+
+app = Flask(__name__)
+
+
+
+
+def conectar():
+   return mysql.connector.connect(**DB_CONFIG)
+
+
+
+
+@app.route("/")
+def index():
+   try:
+       conexao = conectar()
+
+
+       if conexao.is_connected():
+           conexao.close()
+           return render_template("index.html")
+
+
+   except Exception as erro:
+       return f"Erro ao conectar: {erro}"
+
+
+from flask import Flask, render_template
+import mysql.connector
+from config import DB_CONFIG
+
+app = Flask(__name__)
+>>>>>>> d48368c92aa675af0425bf3420fd3c786b49176a
 
 
 def conectar():
     return mysql.connector.connect(**DB_CONFIG)
 
 
+<<<<<<< HEAD
 def consulta(sql, valores=(), uma=False):
     conexao = conectar()
     cursor = conexao.cursor(dictionary=True)
@@ -169,11 +209,34 @@ def relatorios():
     """, uma=True)
     return render_template("relatorios.html", relatorios=registros, totais=totais)
 
+=======
+@app.route("/")
+def index():
+    try:
+        conexao = conectar()
+        if conexao.is_connected():
+            conexao.close()
+            return render_template("index.html")
+    except Exception as erro:
+        return f"Erro ao conectar: {erro}"
+
+
+# --- ADICIONE AS NOVAS ROTAS ABAIXO ---
+
+@app.route("/produtos")
+def produtos():
+    return render_template("produtos.html")
+
+@app.route("/buscar")
+def buscar():
+    return render_template("buscar.html")
+>>>>>>> d48368c92aa675af0425bf3420fd3c786b49176a
 
 @app.route("/sobre")
 def sobre():
     return render_template("sobre.html")
 
+<<<<<<< HEAD
 
 @app.route("/doadores")
 def doadores():
@@ -206,7 +269,19 @@ def pagina_nao_encontrada(_erro):
 def erro_banco(_erro):
     flash("Ocorreu um problema ao consultar o banco de dados. Confira a configuração do MySQL.", "erro")
     return redirect(url_for("index"))
+=======
+@app.route("/contato")
+def contato():
+    return render_template("contato.html")
+>>>>>>> d48368c92aa675af0425bf3420fd3c786b49176a
 
 
 if __name__ == "__main__":
     app.run(debug=True)
+<<<<<<< HEAD
+=======
+
+
+if __name__ == "__main__":
+   app.run(debug=True)
+>>>>>>> d48368c92aa675af0425bf3420fd3c786b49176a
