@@ -1,117 +1,146 @@
-<<<<<<< HEAD
-from decimal import Decimal, InvalidOperation
+from flask import (
+    Flask, render_template, request, session,
+    flash, redirect, url_for
+)
 from functools import wraps
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from decimal import Decimal, InvalidOperation
 import mysql.connector
 from mysql.connector import Error
 from config import DB_CONFIG
 
-app = Flask(__name__)
-app.secret_key = "troque-esta-chave-por-uma-chave-secreta"
-=======
-from flask import Flask, render_template
-import mysql.connector
-from config import DB_CONFIG
-
 
 app = Flask(__name__)
 
+# Necessária para session e flash.
+# Em produção, utilize uma chave secreta guardada fora do código.
+app.config["SECRET_KEY"] = "sobrautil-chave-local-trocar"
 
 
-
-def conectar():
-   return mysql.connector.connect(**DB_CONFIG)
-
-
-
-
-@app.route("/")
-def index():
-   try:
-       conexao = conectar()
-
-
-       if conexao.is_connected():
-           conexao.close()
-           return render_template("index.html")
-
-
-   except Exception as erro:
-       return f"Erro ao conectar: {erro}"
-
-
-from flask import Flask, render_template
-import mysql.connector
-from config import DB_CONFIG
-
-app = Flask(__name__)
->>>>>>> d48368c92aa675af0425bf3420fd3c786b49176a
-
+# ---------------- CONEXÃO COM O BANCO ----------------
 
 def conectar():
     return mysql.connector.connect(**DB_CONFIG)
 
 
-<<<<<<< HEAD
 def consulta(sql, valores=(), uma=False):
     conexao = conectar()
-    cursor = conexao.cursor(dictionary=True)
+    cursor = None
+
     try:
+        cursor = conexao.cursor(dictionary=True)
         cursor.execute(sql, valores)
-        resultado = cursor.fetchone() if uma else cursor.fetchall()
-        return resultado
+
+        if uma:
+            return cursor.fetchone()
+
+        return cursor.fetchall()
+
     finally:
-        cursor.close()
+        if cursor is not None:
+            cursor.close()
         conexao.close()
 
+
+# ---------------- AUTENTICAÇÃO ----------------
 
 def exige_login(funcao):
     @wraps(funcao)
     def wrapper(*args, **kwargs):
         if "idUsuario" not in session:
-            flash("Entre na sua conta para acessar essa página.", "aviso")
+            flash(
+                "Entre na sua conta para acessar essa página.",
+                "aviso"
+            )
             return redirect(url_for("login"))
+
         return funcao(*args, **kwargs)
+
     return wrapper
 
 
+# ---------------- PÁGINA INICIAL ----------------
+
 @app.route("/")
 def index():
+    dados = None
+
     try:
         dados = consulta("""
             SELECT
-                (SELECT COUNT(*) FROM LoteAlimento) AS total_lotes,
-                (SELECT COUNT(*) FROM LoteAlimento WHERE status = 'Disponível') AS lotes_disponiveis,
-                (SELECT COUNT(*) FROM Doacao) AS total_doacoes,
-                (SELECT COUNT(*) FROM ONG) AS total_ongs
+                (SELECT COUNT(*) FROM LoteAlimento)
+                    AS total_lotes,
+                (SELECT COUNT(*) FROM LoteAlimento
+                    WHERE status = 'Disponível')
+                    AS lotes_disponiveis,
+                (SELECT COUNT(*) FROM Doacao)
+                    AS total_doacoes,
+                (SELECT COUNT(*) FROM ONG)
+                    AS total_ongs
         """, uma=True)
-        return render_template("index.html", dados=dados)
+
     except Error as erro:
-        return render_template("index.html", dados=None, erro_db=str(erro))
+        app.logger.error("Erro ao consultar a página inicial: %s", erro)
+        flash(
+            "Não foi possível carregar os números. "
+            "Confira o banco de dados.",
+            "erro"
+        )
+
+    return render_template("index.html", dados=dados)
 
 
+# ---------------- LOGIN E SAÍDA ----------------
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
         email = request.form.get("email", "").strip()
         senha = request.form.get("senha", "")
-        try:
-            usuario = consulta(
-                """SELECT idUsuario, email, senha, statusCadastro
-                   FROM Usuario WHERE email = %s LIMIT 1""",
-                (email,), uma=True
-            )
-            # A tabela fornecida guarda senha em texto simples. Para um sistema real,
-            # armazene hashes com werkzeug.security e migre as senhas existentes.
-            if usuario and usuario["senha"] == senha and usuario["statusCadastro"] == "Ativo":
-                session["idUsuario"] = usuario["idUsuario"]
-                session["email"] = usuario["email"]
-                flash("Login realizado com sucesso!", "sucesso")
-                return redirect(url_for("painel"))
-            flash("E-mail ou senha inválidos, ou cadastro inativo.", "erro")
-        except Error as erro:
-            flash(f"Não foi possível acessar o banco: {erro}", "erro")
+
+        # Aqui você pode adicionar a validação
+        # do usuário no banco de dados MySQL.
+
+        return render_template(
+            "login.html",
+            erro="Verifique as credenciais e tente novamente."
+        )
+
     return render_template("login.html")
+
+# @app.route("/login", methods=["GET", "POST"])
+# def login():
+#     if request.method == "POST":
+#         email = request.form.get("email", "").strip()
+#         senha = request.form.get("senha", "")
+
+#         try:
+#             usuario = consulta("""
+#                 SELECT idUsuario, email, senha, statusCadastro
+#                 FROM Usuario
+#                 WHERE email = %s
+#                 LIMIT 1
+#             """, (email,), uma=True)
+
+#             if (
+#                 usuario
+#                 and usuario["senha"] == senha
+#                 and usuario["statusCadastro"] == "Ativo"
+#             ):
+#                 session["idUsuario"] = usuario["idUsuario"]
+#                 session["email"] = usuario["email"]
+
+#                 flash("Login realizado com sucesso!", "sucesso")
+#                 return redirect(url_for("painel"))
+
+#             flash(
+#                 "E-mail ou senha inválidos, ou cadastro inativo.",
+#                 "erro"
+#             )
+
+#         except Error as erro:
+#             app.logger.error("Erro no login: %s", erro)
+#             flash("Não foi possível acessar o banco de dados.", "erro")
+
+#     return render_template("login.html")
 
 
 @app.route("/sair")
@@ -120,168 +149,275 @@ def sair():
     flash("Você saiu da sua conta.", "sucesso")
     return redirect(url_for("index"))
 
+@app.route("/cadastro", methods=["GET", "POST"])
+def cadastro():
+    return render_template("cadastro.html")
+
+# ---------------- PAINEL ----------------
 
 @app.route("/painel")
 @exige_login
 def painel():
     dados = consulta("""
         SELECT
-            (SELECT COUNT(*) FROM LoteAlimento) AS total_lotes,
-            (SELECT COUNT(*) FROM LoteAlimento WHERE status = 'Disponível') AS lotes_disponiveis,
-            (SELECT COUNT(*) FROM Doacao) AS total_doacoes,
-            (SELECT COUNT(*) FROM ONG) AS total_ongs,
-            (SELECT COALESCE(SUM(valorTotalCusto), 0) FROM RelatorioFiscal) AS custos_fiscais
+            (SELECT COUNT(*) FROM LoteAlimento)
+                AS total_lotes,
+            (SELECT COUNT(*) FROM LoteAlimento
+                WHERE status = 'Disponível')
+                AS lotes_disponiveis,
+            (SELECT COUNT(*) FROM Doacao)
+                AS total_doacoes,
+            (SELECT COUNT(*) FROM ONG)
+                AS total_ongs,
+            (SELECT COALESCE(SUM(valorTotalCusto), 0)
+                FROM RelatorioFiscal)
+                AS custos_fiscais
     """, uma=True)
+
     return render_template("dashboard.html", dados=dados)
 
+
+# ---------------- LOTES ----------------
 
 @app.route("/lotes")
 def lotes():
     registros = consulta("""
-        SELECT l.idLote, l.descricao, l.quantidadeKg, l.dataValidade,
-               l.valorCustoTotal, l.status, d.razaoSocial
+        SELECT
+            l.idLote,
+            l.descricao,
+            l.quantidadeKg,
+            l.dataValidade,
+            l.valorCustoTotal,
+            l.status,
+            d.razaoSocial
         FROM LoteAlimento l
-        LEFT JOIN Doador d ON d.idDoador = l.idDoador
+        LEFT JOIN Doador d
+            ON d.idDoador = l.idDoador
         ORDER BY l.idLote DESC
     """)
+
     return render_template("lotes.html", lotes=registros)
 
 
 @app.route("/lotes/novo", methods=["GET", "POST"])
 @exige_login
 def novo_lote():
-    doadores = consulta("SELECT idDoador, razaoSocial FROM Doador ORDER BY razaoSocial")
+    doadores = consulta("""
+        SELECT idDoador, razaoSocial
+        FROM Doador
+        ORDER BY razaoSocial
+    """)
+
     if request.method == "POST":
         try:
             id_doador = int(request.form["idDoador"])
             descricao = request.form["descricao"].strip()
-            quantidade = Decimal(request.form["quantidadeKg"].replace(",", "."))
+
+            quantidade = Decimal(
+                request.form["quantidadeKg"].replace(",", ".")
+            )
+
             validade = request.form["dataValidade"]
-            custo = Decimal(request.form["valorCustoTotal"].replace(",", ".") or "0")
+
+            custo = Decimal(
+                request.form["valorCustoTotal"].replace(",", ".") or "0"
+            )
+
             status = request.form["status"]
+
+            if not descricao:
+                raise ValueError("Informe a descrição do lote.")
+
             if quantidade <= 0 or custo < 0:
-                raise ValueError("A quantidade deve ser maior que zero e o custo não pode ser negativo.")
+                raise ValueError(
+                    "A quantidade deve ser maior que zero "
+                    "e o custo não pode ser negativo."
+                )
+
             conexao = conectar()
             cursor = conexao.cursor()
-            cursor.execute("""
-                INSERT INTO LoteAlimento
-                (idDoador, descricao, quantidadeKg, dataValidade, valorCustoTotal, status)
-                VALUES (%s, %s, %s, %s, %s, %s)
-            """, (id_doador, descricao, quantidade, validade, custo, status))
-            conexao.commit()
-            cursor.close()
-            conexao.close()
+
+            try:
+                cursor.execute("""
+                    INSERT INTO LoteAlimento
+                    (
+                        idDoador,
+                        descricao,
+                        quantidadeKg,
+                        dataValidade,
+                        valorCustoTotal,
+                        status
+                    )
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                """, (
+                    id_doador,
+                    descricao,
+                    quantidade,
+                    validade,
+                    custo,
+                    status
+                ))
+
+                conexao.commit()
+
+            finally:
+                cursor.close()
+                conexao.close()
+
             flash("Lote cadastrado com sucesso!", "sucesso")
             return redirect(url_for("lotes"))
+
         except (ValueError, InvalidOperation, KeyError) as erro:
             flash(f"Confira os dados informados: {erro}", "erro")
+
         except Error as erro:
-            flash(f"Erro ao cadastrar lote: {erro}", "erro")
+            app.logger.error("Erro ao cadastrar lote: %s", erro)
+            flash("Erro ao cadastrar lote no banco de dados.", "erro")
+
     return render_template("lote_form.html", doadores=doadores)
 
+
+# ---------------- DOAÇÕES ----------------
 
 @app.route("/doacoes")
 def doacoes():
     registros = consulta("""
-        SELECT do.idDoacao, do.dataReserva, do.tokenQRCode, do.statusDoacao,
-               l.descricao, l.quantidadeKg, ong.nomeInstituicao
+        SELECT
+            do.idDoacao,
+            do.dataReserva,
+            do.tokenQRCode,
+            do.statusDoacao,
+            l.descricao,
+            l.quantidadeKg,
+            ong.nomeInstituicao
         FROM Doacao do
-        LEFT JOIN LoteAlimento l ON l.idLote = do.idLote
-        LEFT JOIN ONG ong ON ong.idONG = do.idONG
+        LEFT JOIN LoteAlimento l
+            ON l.idLote = do.idLote
+        LEFT JOIN ONG ong
+            ON ong.idONG = do.idONG
         ORDER BY do.idDoacao DESC
     """)
+
     return render_template("doacoes.html", doacoes=registros)
 
+
+# ---------------- RELATÓRIOS ----------------
 
 @app.route("/relatorios")
 def relatorios():
     registros = consulta("""
-        SELECT r.idRelatorio, r.mesAnoRef, r.valorTotalCusto,
-               r.valorIncentivoEst, d.razaoSocial
+        SELECT
+            r.idRelatorio,
+            r.mesAnoRef,
+            r.valorTotalCusto,
+            r.valorIncentivoEst,
+            d.razaoSocial
         FROM RelatorioFiscal r
-        LEFT JOIN Doador d ON d.idDoador = r.idDoador
+        LEFT JOIN Doador d
+            ON d.idDoador = r.idDoador
         ORDER BY r.idRelatorio DESC
     """)
+
     totais = consulta("""
-        SELECT COALESCE(SUM(valorTotalCusto), 0) AS custos,
-               COALESCE(SUM(valorIncentivoEst), 0) AS incentivos
+        SELECT
+            COALESCE(SUM(valorTotalCusto), 0) AS custos,
+            COALESCE(SUM(valorIncentivoEst), 0) AS incentivos
         FROM RelatorioFiscal
     """, uma=True)
-    return render_template("relatorios.html", relatorios=registros, totais=totais)
 
-=======
-@app.route("/")
-def index():
-    try:
-        conexao = conectar()
-        if conexao.is_connected():
-            conexao.close()
-            return render_template("index.html")
-    except Exception as erro:
-        return f"Erro ao conectar: {erro}"
+    return render_template(
+        "relatorios.html",
+        relatorios=registros,
+        totais=totais
+    )
 
 
-# --- ADICIONE AS NOVAS ROTAS ABAIXO ---
+# ---------------- PRODUTOS, BUSCA E SOBRE ----------------
 
 @app.route("/produtos")
 def produtos():
     return render_template("produtos.html")
 
+
 @app.route("/buscar")
 def buscar():
     return render_template("buscar.html")
->>>>>>> d48368c92aa675af0425bf3420fd3c786b49176a
+
 
 @app.route("/sobre")
 def sobre():
     return render_template("sobre.html")
 
-<<<<<<< HEAD
+
+# ---------------- DOADORES ----------------
 
 @app.route("/doadores")
 def doadores():
     registros = consulta("""
-        SELECT d.idDoador, d.cnpj, d.razaoSocial, d.regimeTributario, u.email, u.telefone
+        SELECT
+            d.idDoador,
+            d.cnpj,
+            d.razaoSocial,
+            d.regimeTributario,
+            u.email,
+            u.telefone
         FROM Doador d
-        LEFT JOIN Usuario u ON u.idUsuario = d.idUsuario
+        LEFT JOIN Usuario u
+            ON u.idUsuario = d.idUsuario
         ORDER BY d.razaoSocial
     """)
+
     return render_template("doadores.html", doadores=registros)
 
+
+# ---------------- ONGS ----------------
 
 @app.route("/ongs")
 def ongs():
     registros = consulta("""
-        SELECT o.idONG, o.cnpj, o.nomeInstituicao, u.email, u.telefone
+        SELECT
+            o.idONG,
+            o.cnpj,
+            o.nomeInstituicao,
+            u.email,
+            u.telefone
         FROM ONG o
-        LEFT JOIN Usuario u ON u.idUsuario = o.idUsuario
+        LEFT JOIN Usuario u
+            ON u.idUsuario = o.idUsuario
         ORDER BY o.nomeInstituicao
     """)
+
     return render_template("ongs.html", ongs=registros)
 
 
+# ---------------- CONTATO ----------------
+
+@app.route("/contato")
+def contato():
+    return render_template("contato.html")
+
+
+# ---------------- ERROS ----------------
+
 @app.errorhandler(404)
-def pagina_nao_encontrada(_erro):
+def pagina_nao_encontrada(erro):
     return render_template("404.html"), 404
 
 
 @app.errorhandler(Error)
-def erro_banco(_erro):
-    flash("Ocorreu um problema ao consultar o banco de dados. Confira a configuração do MySQL.", "erro")
+def erro_banco(erro):
+    app.logger.error("Erro de banco de dados: %s", erro)
+    flash(
+        "Ocorreu um problema ao consultar o banco de dados. "
+        "Confira a configuração do MySQL.",
+        "erro"
+    )
     return redirect(url_for("index"))
-=======
-@app.route("/contato")
-def contato():
-    return render_template("contato.html")
->>>>>>> d48368c92aa675af0425bf3420fd3c786b49176a
+
+
+
+
 
 
 if __name__ == "__main__":
     app.run(debug=True)
-<<<<<<< HEAD
-=======
-
-
-if __name__ == "__main__":
-   app.run(debug=True)
->>>>>>> d48368c92aa675af0425bf3420fd3c786b49176a

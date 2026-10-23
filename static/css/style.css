@@ -126,3 +126,371 @@ input:focus, select:focus { border-color: var(--green); box-shadow: 0 0 0 3px #1
     .auth-card { padding: 24px; }
     .hero-image { min-height: 180px; aspect-ratio: 16 / 8; }
 }
+
+
+
+
+
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #15251a;
+    background: #ffffff;
+}
+
+
+
+.navbar {
+    min-height: 60px;
+    padding: 0 3%;
+    background: #194922;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 800;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.logo-icon {
+    font-size: 24px;
+    color: #69d77b;
+}
+
+.logo-highlight {
+    color: #70d881;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+}
+
+.nav-links a {
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.nav-links a:hover {
+    color: #76df89;
+}
+
+.nav-buttons {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    white-space: nowrap;
+}
+
+.btn-login,
+.btn-register {
+    padding: 10px 14px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.btn-login {
+    color: #194922;
+    background: #ffffff;
+}
+
+.btn-register {
+    color: #ffffff;
+    background: #6bd67d;
+}
+
+.btn-login:hover,
+.btn-register:hover {
+    opacity: 0.85;
+}
+
+
+
+.cadastro-area {
+    min-height: 560px;
+    padding: 20px;
+    background: #d0d1ce;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+
+.cadastro-card {
+    width: 100%;
+    max-width: 345px;
+    padding: 17px 16px 10px;
+    background: #e7e7e7;
+    border-radius: 10px;
+}
+
+.eyebrow {
+    margin: 0 0 5px;
+    color: #087332;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.cadastro-card h1 {
+    margin: 0 0 5px;
+    color: #14251b;
+    font-size: 23px;
+    line-height: 1.2;
+}
+
+.subtitle {
+    margin: 0 0 15px;
+    color: #858b85;
+    font-size: 11px;
+}
+
+/* SELEÇÃO DO PERFIL */
+
+.profile-options {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 13px;
+}
+
+.profile-option {
+    flex: 1;
+    cursor: pointer;
+    position: relative;
+}
+
+.profile-option input {
+    position: absolute;
+    opacity: 0;
+}
+
+.profile-option span {
+    min-height: 27px;
+    padding: 7px 3px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px;
+    background: #69d27b;
+    color: #ffffff;
+    font-size: 9px;
+    font-weight: 800;
+    text-align: center;
+    transition: 0.2s;
+}
+
+.profile-option input:checked + span {
+    background: #194922;
+    outline: 2px solid #69d27b;
+}
+
+.profile-option input:focus-visible + span {
+    outline: 2px solid #14251b;
+}
+
+/* CAMPOS */
+
+.form-group {
+    margin-bottom: 7px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 3px;
+    color: #17261c;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.form-group input {
+    width: 100%;
+    height: 33px;
+    padding: 0 13px;
+    border: 1px solid #c8cec8;
+    border-radius: 7px;
+    background: #e4e4e4;
+    color: #17261c;
+    font-size: 11px;
+    outline: none;
+}
+
+.form-group input::placeholder {
+    color: #969d96;
+    font-weight: 600;
+}
+
+.form-group input:focus {
+    border-color: #269548;
+    background: #ffffff;
+    box-shadow: 0 0 0 2px rgba(38, 149, 72, 0.12);
+}
+
+/* TERMOS */
+
+.terms {
+    display: flex;
+    align-items: flex-start;
+    gap: 4px;
+    margin: 8px 0;
+}
+
+.terms input {
+    margin: 1px 0 0;
+    accent-color: #194922;
+}
+
+.terms label {
+    color: #8a918a;
+    font-size: 10px;
+    line-height: 1.4;
+}
+
+/* BOTÃO CADASTRAR */
+
+.btn-submit {
+    width: 100%;
+    min-height: 27px;
+    border: none;
+    border-radius: 5px;
+    background: #194922;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.btn-submit:hover {
+    background: #0d6330;
+}
+
+/* LINK PARA LOGIN */
+
+.login-link {
+    margin: 7px 0 0;
+    color: #8a918a;
+    font-size: 10px;
+}
+
+.login-link a {
+    color: #6b796d;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.login-link a:hover {
+    color: #087332;
+    text-decoration: underline;
+}
+
+/* RODAPÉ */
+
+.footer {
+    min-height: 60px;
+    padding: 0 5%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    background: #0d2116;
+    color: #9aa69c;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+/* RESPONSIVIDADE */
+
+@media (max-width: 1050px) {
+    .navbar {
+        flex-wrap: wrap;
+        padding: 12px 4%;
+    }
+
+    .nav-links {
+        gap: 14px;
+    }
+
+    .nav-links a {
+        font-size: 10px;
+    }
+}
+
+@media (max-width: 700px) {
+    .navbar {
+        justify-content: center;
+    }
+
+    .logo {
+        margin-right: auto;
+    }
+
+    .nav-links {
+        width: 100%;
+        flex-wrap: wrap;
+        order: 3;
+        padding: 8px 0;
+    }
+
+    .nav-buttons {
+        gap: 5px;
+    }
+
+    .btn-login,
+    .btn-register {
+        padding: 9px;
+        font-size: 10px;
+    }
+
+    .cadastro-area {
+        min-height: auto;
+        padding: 30px 15px;
+    }
+
+    .cadastro-card {
+        max-width: 400px;
+    }
+
+    .cadastro-card h1 {
+        font-size: 22px;
+    }
+
+    .footer {
+        padding: 18px 5%;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+}
+
+@media (max-width: 380px) {
+    .profile-option span {
+        font-size: 8px;
+    }
+
+    .nav-links {
+        gap: 10px;
+    }
+
+    .cadastro-card {
+        padding: 15px 12px;
+    }
+}
