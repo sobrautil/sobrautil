@@ -7,7 +7,7 @@ from decimal import Decimal, InvalidOperation
 import mysql.connector
 from mysql.connector import Error
 from config import DB_CONFIG
-
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 
@@ -90,21 +90,106 @@ def index():
 
 
 # ---------------- LOGIN E SAÍDA ----------------
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    if request.method == "POST":
-        email = request.form.get("email", "").strip()
-        senha = request.form.get("senha", "")
+    if request.method == "GET":
+        return render_template("login.html")
 
-        # Aqui você pode adicionar a validação
-        # do usuário no banco de dados MySQL.
+    email = request.form.get("email", "").strip().lower()
+    senha = request.form.get("senha", "")
 
-        return render_template(
-            "login.html",
-            erro="Verifique as credenciais e tente novamente."
+    try:
+        usuario = consulta(
+            """
+           SELECT idUsuario, email, senha, statusCadastro, perfil
+           FROM Usuario
+           WHERE email = %s
+           LIMIT 1
+            """,
+            (email,),
+            uma=True
         )
 
-    return render_template("login.html")
+        senha_valida = False
+
+        if usuario and usuario["senha"]:
+            senha_salva = usuario["senha"]
+
+            try:
+                senha_valida = check_password_hash(senha_salva, senha)
+            except (ValueError, TypeError):
+                senha_valida = False
+
+            # Compatibilidade temporária com contas antigas
+            # que possam ter senha gravada em texto puro.
+            if not senha_valida and senha_salva == senha:
+                senha_valida = True
+
+                conexao = None
+                cursor = None
+                try:
+                    conexao = conectar()
+                    cursor = conexao.cursor()
+                    cursor.execute(
+                        """
+                        UPDATE Usuario
+                        SET senha = %s
+                        WHERE idUsuario = %s
+                        """,
+                        (
+                            generate_password_hash(senha),
+                            usuario["idUsuario"]
+                        )
+                    )
+                    conexao.commit()
+                except Error:
+                    if conexao is not None:
+                        conexao.rollback()
+                    app.logger.exception(
+                        "Não foi possível atualizar o hash da senha."
+                    )
+                    senha_valida = False
+                finally:
+                    if cursor is not None:
+                        cursor.close()
+                    if conexao is not None:
+                        conexao.close()
+
+        if (
+            usuario
+            and senha_valida
+            and (usuario["statusCadastro"] or "").lower() == "ativo"
+        ):
+            session.clear()
+        session["idUsuario"] = usuario["idUsuario"]
+        session["email"] = usuario["email"]
+        session["perfil"] = (usuario.get("perfil") or "").lower()
+
+        flash("Login realizado com sucesso!", "sucesso")
+
+        session.clear()
+        session["idUsuario"] = usuario["idUsuario"]
+        session["email"] = usuario["email"]
+        session["perfil"] = (usuario.get("perfil") or "").lower()
+
+        flash("Login realizado com sucesso!", "sucesso")
+
+        if session["perfil"] == "doador":
+            return redirect(url_for("painel_doador"))
+
+        elif session["perfil"] == "entidade":
+            return redirect(url_for("painel_ong"))
+
+        elif session["perfil"] == "contador":
+            return redirect(url_for("painel_contador"))
+
+    except Error as erro:
+        flash("Sua conta está sem um perfil válido.", "erro")
+        return redirect(url_for("login"))
+    session.clear()
+
+
 
 # @app.route("/login", methods=["GET", "POST"])
 # def login():
@@ -149,9 +234,108 @@ def sair():
     flash("Você saiu da sua conta.", "sucesso")
     return redirect(url_for("index"))
 
+
 @app.route("/cadastro", methods=["GET", "POST"])
 def cadastro():
-    return render_template("cadastro.html")
+    if request.method == "GET":
+        return render_template("cadastro.html")
+
+    perfil = request.form.get("perfil", "").strip().lower()
+    nome = request.form.get("nome", "").strip()
+    cnpj = request.form.get("cnpj", "").strip()
+    telefone = request.form.get("telefone", "").strip()
+    email = request.form.get("email", "").strip().lower()
+    senha = request.form.get("senha", "")
+    confirmar_senha = request.form.get("confirmar_senha", "")
+
+    if perfil not in ("doador", "entidade", "contador"):
+        flash("Selecione um perfil válido.", "erro")
+        return redirect(url_for("cadastro"))
+
+
+    if not all([nome, cnpj, telefone, email, senha, confirmar_senha]):
+        flash("Preencha todos os campos.", "erro")
+        return redirect(url_for("cadastro"))
+
+    if senha != confirmar_senha:
+        flash("As senhas não são iguais.", "erro")
+        return redirect(url_for("cadastro"))
+
+    if len(senha) < 8:
+        flash("A senha deve ter pelo menos 8 caracteres.", "erro")
+        return redirect(url_for("cadastro"))
+
+    conexao = None
+    cursor = None
+
+    try:
+        conexao = conectar()
+        cursor = conexao.cursor(dictionary=True)
+
+        cursor.execute(
+            "SELECT idUsuario FROM Usuario WHERE email = %s LIMIT 1",
+            (email,)
+        )
+
+        if cursor.fetchone():
+            flash("Já existe uma conta cadastrada com esse e-mail.", "erro")
+            return redirect(url_for("cadastro"))
+
+        senha_hash = generate_password_hash(senha)
+
+        cursor.execute(
+    """
+    INSERT INTO Usuario
+        (email, senha, telefone, statusCadastro, perfil)
+    VALUES (%s, %s, %s, %s, %s)
+    """,
+    (email, senha_hash, telefone, "Ativo", perfil)
+)
+
+        id_usuario = cursor.lastrowid
+
+        if perfil == "doador":
+            cursor.execute(
+                """
+                INSERT INTO Doador
+                    (idUsuario, cnpj, razaoSocial, regimeTributario)
+                VALUES (%s, %s, %s, %s)
+                """,
+                (id_usuario, cnpj, nome, None)
+            )
+
+        elif perfil == "entidade":
+            cursor.execute(
+                """
+                INSERT INTO ONG (idUsuario, cnpj, nomeInstituicao)
+                VALUES (%s, %s, %s)
+                """,
+                (id_usuario, cnpj, nome)
+            )
+
+        conexao.commit()
+
+        flash("Cadastro realizado! Entre com seu e-mail e senha.", "sucesso")
+        return redirect(url_for("login"))
+
+    except Error:
+        if conexao is not None:
+            conexao.rollback()
+
+        app.logger.exception("Erro ao realizar cadastro no Sobrautil.")
+        flash(
+            "Não foi possível concluir o cadastro. "
+            "Confira os dados e a conexão com o banco.",
+            "erro"
+        )
+        return redirect(url_for("cadastro"))
+
+    finally:
+        if cursor is not None:
+            cursor.close()
+        if conexao is not None:
+            conexao.close()
+
 
 # ---------------- PAINEL ----------------
 

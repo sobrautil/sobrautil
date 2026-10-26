@@ -1,0 +1,85 @@
+
+{% extends "base.html" %}
+
+{% block title %}Meu Painel | Sobrautil{% endblock %}
+
+{% block conteudo %}
+<section class="painel-page">
+    <div class="painel-container">
+
+        <section class="painel-boas-vindas">
+            <h1>Boas-Vindas</h1>
+            <h2>Olá! O que vamos doar hoje?</h2>
+            <p>
+                Gerencie seus lotes de alimentos e acompanhe
+                seu impacto social e fiscal.
+            </p>
+
+            <a href="{{ url_for('lotes') }}" class="painel-botao">
+                + Cadastrar Novo Lote de Alimentos
+            </a>
+        </section>
+
+        <section class="painel-indicadores">
+            <article class="indicador">
+                <h3>Lotes Registrados</h3>
+                <strong>{{ total_lotes|default(0) }}</strong>
+            </article>
+
+            <article class="indicador">
+                <h3>Alimentos Registrados</h3>
+                <strong>{{ total_kg|default(0) }} Kg</strong>
+            </article>
+
+            <article class="indicador">
+                <h3>Valor Total Registrado</h3>
+                <strong>R$ {{ valor_total|default('0,00') }}</strong>
+            </article>
+        </section>
+
+        <section class="painel-tabela">
+            <h2>Lotes Registrados e Status</h2>
+
+            {% if lotes %}
+            <div class="tabela-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Código do Lote</th>
+                            <th>Descrição</th>
+                            <th>Quantidade</th>
+                            <th>Data de Validade</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for lote in lotes %}
+                        <tr>
+                            <td>LOTE-{{ lote.idLote }}</td>
+                            <td>{{ lote.descricao }}</td>
+                            <td>{{ lote.quantidadeKg }} Kg</td>
+                            <td>
+                                {{ lote.dataValidade.strftime('%d/%m/%Y')
+                                   if lote.dataValidade else 'Não informada' }}
+                            </td>
+                            <td>
+                                <span class="status-lote">
+                                    {{ lote.status or 'Em análise' }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="painel-vazio">
+                Você ainda não possui lotes cadastrados.
+                Quando registrar um lote, ele aparecerá aqui.
+            </p>
+            {% endif %}
+        </section>
+
+    </div>
+</section>
+{% endblock %}

@@ -22,10 +22,16 @@
             {% if session.get('idUsuario') %}
                 <a class="btn btn-light" href="{{ url_for('painel') }}">MEU PAINEL</a>
                 <a class="btn btn-bright" href="{{ url_for('sair') }}">SAIR</a>
-            {% else %}
-                <a class="btn btn-light" href="{{ url_for('login') }}">ENTRAR</a>
-                <a class="btn btn-bright" href="{{ url_for('login') }}">CADASTRAR/DOAR</a>
-            {% endif %}
+               
+                {% else %}
+                    <a class="btn btn-light" href="{{ url_for('login') }}">
+                        ENTRAR
+                    </a>
+                    <a class="btn btn-bright" href="{{ url_for('cadastro') }}">
+                        CADASTRAR/DOAR
+                    </a>
+                {% endif %}
+            
         </div>
     </header>
 

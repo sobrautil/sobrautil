@@ -1,132 +1,87 @@
 
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% extends "base.html" %}
 
-    <title>Cadastrar - Sobrautil</title>
+{% block title %}Cadastrar | Sobrautil{% endblock %}
 
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/style.css') }}">
-</head>
-<body>
+{% block conteudo %}
+<section class="cadastro-area">
+    <div class="cadastro-card">
+        <p class="eyebrow">CRIE SUA CONTA</p>
+        <h1>Cadastrar no Sobrautil</h1>
+        <p class="subtitle">
+            Selecione seu perfil e preencha os dados abaixo.
+        </p>
 
-    <header class="navbar">
-        <a href="{{ url_for('index') }}" class="logo">
-            <span class="logo-icon">♻</span>
-            <span>SOBRA<span class="logo-highlight">UTIL</span></span>
-        </a>
+        <form action="{{ url_for('cadastro') }}" method="POST">
+            <div class="profile-options">
+                <label class="profile-option">
+                    <input type="radio" name="perfil" value="doador" required>
+                    <span>DOADOR</span>
+                </label>
 
-        <nav class="nav-links">
-            <a href="{{ url_for('index') }}#como-funciona">COMO FUNCIONA</a>
-            <a href="{{ url_for('index') }}#doadores">PARA DOADORES</a>
-            <a href="{{ url_for('index') }}#contador">MÓDULO CONTADOR</a>
-            <a href="{{ url_for('index') }}#sobre">SOBRE NÓS</a>
-        </nav>
+                <label class="profile-option">
+                    <input type="radio" name="perfil" value="entidade" required>
+                    <span>ENTIDADE</span>
+                </label>
 
-        <div class="nav-buttons">
-            <a href="{{ url_for('login') }}" class="btn-login">ENTRAR</a>
-            <a href="{{ url_for('cadastro') }}" class="btn-register">CADASTRAR / DOAR</a>
-        </div>
-    </header>
+                <label class="profile-option">
+                    <input type="radio" name="perfil" value="contador" required>
+                    <span>CONTADOR</span>
+                </label>
+            </div>
 
-    <main class="cadastro-area">
-        <section class="cadastro-card">
+            <div class="form-group">
+                <label for="nome">Nome ou razão social</label>
+                <input type="text" id="nome" name="nome"
+                       placeholder="Ex.: Mercado Silva" required>
+            </div>
 
-            <p class="eyebrow">CRIE SUA CONTA</p>
+            <div class="form-group">
+                <label for="cnpj">CNPJ</label>
+                <input type="text" id="cnpj" name="cnpj"
+                       placeholder="00.000.000/0001-00" required>
+            </div>
 
-            <h1>Cadastrar no Sobraútil</h1>
+            <div class="form-group">
+                <label for="telefone">Telefone</label>
+                <input type="tel" id="telefone" name="telefone"
+                       placeholder="(00) 00000-0000" required>
+            </div>
 
-            <p class="subtitle">
-                Selecione o seu perfil e preencha os dados abaixo
+            <div class="form-group">
+                <label for="email">E-mail</label>
+                <input type="email" id="email" name="email"
+                       placeholder="seuemail@exemplo.com" required>
+            </div>
+
+            <div class="form-group">
+                <label for="senha">Senha</label>
+                <input type="password" id="senha" name="senha"
+                       minlength="8" placeholder="Mínimo de 8 caracteres"
+                       required>
+            </div>
+
+            <div class="form-group">
+                <label for="confirmar_senha">Confirmar senha</label>
+                <input type="password" id="confirmar_senha"
+                       name="confirmar_senha"
+                       placeholder="Digite a senha novamente" required>
+            </div>
+
+            <div class="terms">
+                <input type="checkbox" id="termos" name="termos" required>
+                <label for="termos">
+                    Li e aceito os Termos de Uso e a Política de Privacidade.
+                </label>
+            </div>
+
+            <button type="submit" class="btn-submit">CADASTRAR</button>
+
+            <p class="login-link">
+                Já possui uma conta?
+                <a href="{{ url_for('login') }}">Fazer login</a>
             </p>
-
-            <form action="{{ url_for('cadastro') }}" method="POST">
-
-                <div class="profile-options">
-                    <label class="profile-option">
-                        <input type="radio" name="perfil"
-                               value="doador" required>
-                        <span>DOADOR</span>
-                    </label>
-
-                    <label class="profile-option">
-                        <input type="radio" name="perfil"
-                               value="entidade">
-                        <span>ENTIDADE</span>
-                    </label>
-
-                    <label class="profile-option">
-                        <input type="radio" name="perfil"
-                               value="contador">
-                        <span>CONTADOR</span>
-                    </label>
-                </div>
-
-                <div class="form-group">
-                    <label for="nome">Nome</label>
-                    <input type="text" id="nome" name="nome"
-                           placeholder="Ex: Supermercado Silva" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="cnpj">CNPJ</label>
-                    <input type="text" id="cnpj" name="cnpj"
-                           placeholder="00.000.000/0001-00" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="telefone">Telefone</label>
-                    <input type="tel" id="telefone" name="telefone"
-                           placeholder="(00) 00000-0000" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="email">E-mail</label>
-                    <input type="email" id="email" name="email"
-                           placeholder="seuemail@exemplo.com" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="senha">Senha</label>
-                    <input type="password" id="senha" name="senha"
-                           placeholder="Digite sua senha" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="confirmar_senha">Confirmar Senha</label>
-                    <input type="password" id="confirmar_senha"
-                           name="confirmar_senha"
-                           placeholder="Digite sua senha" required>
-                </div>
-
-                <div class="terms">
-                    <input type="checkbox" id="termos" name="termos"
-                           required>
-                    <label for="termos">
-                        Li e aceito os Termos de Uso e a Política de
-                        Privacidade (LGPD).
-                    </label>
-                </div>
-
-                <button type="submit" class="btn-submit">
-                    CADASTRAR
-                </button>
-
-                <p class="login-link">
-                    Já possui uma conta?
-                    <a href="{{ url_for('login') }}">Fazer Login</a>
-                </p>
-
-            </form>
-        </section>
-    </main>
-
-    <footer class="footer">
-        <span>2026 Sobrautil</span>
-        <span>Conectando alimentos a quem precisa.</span>
-    </footer>
-
-</body>
-</html>
+        </form>
+    </div>
+</section>
+{% endblock %}
