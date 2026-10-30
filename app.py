@@ -91,6 +91,7 @@ def index():
 
 # ---------------- LOGIN E SAÍDA ----------------
 
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "GET":
@@ -102,10 +103,10 @@ def login():
     try:
         usuario = consulta(
             """
-           SELECT idUsuario, email, senha, statusCadastro, perfil
-           FROM Usuario
-           WHERE email = %s
-           LIMIT 1
+            SELECT idUsuario, email, senha, statusCadastro, perfil
+            FROM Usuario
+            WHERE email = %s
+            LIMIT 1
             """,
             (email,),
             uma=True
@@ -121,16 +122,17 @@ def login():
             except (ValueError, TypeError):
                 senha_valida = False
 
-            # Compatibilidade temporária com contas antigas
-            # que possam ter senha gravada em texto puro.
+            # Compatibilidade com contas antigas
             if not senha_valida and senha_salva == senha:
                 senha_valida = True
 
                 conexao = None
                 cursor = None
+
                 try:
                     conexao = conectar()
                     cursor = conexao.cursor()
+
                     cursor.execute(
                         """
                         UPDATE Usuario
@@ -142,52 +144,64 @@ def login():
                             usuario["idUsuario"]
                         )
                     )
+
                     conexao.commit()
+
                 except Error:
                     if conexao is not None:
                         conexao.rollback()
+
                     app.logger.exception(
-                        "Não foi possível atualizar o hash da senha."
+                        "Erro ao atualizar a senha."
                     )
                     senha_valida = False
+
                 finally:
                     if cursor is not None:
                         cursor.close()
+
                     if conexao is not None:
                         conexao.close()
 
+        # Verifica se o login é válido
         if (
-            usuario
-            and senha_valida
-            and (usuario["statusCadastro"] or "").lower() == "ativo"
+            not usuario
+            or not senha_valida
+            or (usuario["statusCadastro"] or "").lower() != "ativo"
         ):
-            session.clear()
-        session["idUsuario"] = usuario["idUsuario"]
-        session["email"] = usuario["email"]
-        session["perfil"] = (usuario.get("perfil") or "").lower()
+            flash("E-mail ou senha inválidos, ou conta inativa.", "erro")
+            return redirect(url_for("login"))
 
-        flash("Login realizado com sucesso!", "sucesso")
+        # Verifica o perfil cadastrado
+        perfil = (usuario.get("perfil") or "").lower()
 
+        if perfil not in ("doador", "entidade", "contador"):
+            flash("Sua conta não possui um perfil válido.", "erro")
+            return redirect(url_for("login"))
+
+        # Salva os dados da sessão
         session.clear()
         session["idUsuario"] = usuario["idUsuario"]
         session["email"] = usuario["email"]
-        session["perfil"] = (usuario.get("perfil") or "").lower()
+        session["perfil"] = perfil
 
         flash("Login realizado com sucesso!", "sucesso")
 
-        if session["perfil"] == "doador":
+        # Redireciona para o painel correspondente
+        if perfil == "doador":
             return redirect(url_for("painel_doador"))
 
-        elif session["perfil"] == "entidade":
+        elif perfil == "entidade":
             return redirect(url_for("painel_ong"))
 
-        elif session["perfil"] == "contador":
+        elif perfil == "contador":
             return redirect(url_for("painel_contador"))
 
-    except Error as erro:
-        flash("Sua conta está sem um perfil válido.", "erro")
+    except Error:
+        app.logger.exception("Erro ao verificar o login.")
+        flash("Não foi possível acessar o banco de dados.", "erro")
         return redirect(url_for("login"))
-    session.clear()
+
 
 
 
@@ -339,9 +353,54 @@ def cadastro():
 
 # ---------------- PAINEL ----------------
 
+def exige_perfil(perfil_necessario):
+    def decorador(funcao):
+        @wraps(funcao)
+        def wrapper(*args, **kwargs):
+
+            if "idUsuario" not in session:
+                flash("Faça login para acessar essa página.", "erro")
+                return redirect(url_for("login"))
+
+            if session.get("perfil") != perfil_necessario:
+                flash("Você não tem permissão para acessar essa página.", "erro")
+                return redirect(url_for("painel"))
+
+            return funcao(*args, **kwargs)
+
+        return wrapper
+    return decorador
+
+
 @app.route("/painel")
 @exige_login
 def painel():
+    perfil = session.get("perfil")
+
+    if perfil == "doador":
+        return redirect(url_for("painel_doador"))
+
+    elif perfil == "entidade":
+        return redirect(url_for("painel_ong"))
+
+    elif perfil == "contador":
+        return redirect(url_for("painel_contador"))
+
+    session.clear()
+    return redirect(url_for("login"))
+
+
+
+@app.route("/painel/doador")
+@exige_perfil("doador")
+def painel_doador():
+    return render_template("dashboard.html")
+
+
+
+@app.route("/painel/ong")
+@exige_perfil("entidade")
+def painel_ong():
     dados = consulta("""
         SELECT
             (SELECT COUNT(*) FROM LoteAlimento)
@@ -359,6 +418,16 @@ def painel():
     """, uma=True)
 
     return render_template("dashboard.html", dados=dados)
+
+
+
+@app.route("/painel/contador")
+@exige_perfil("contador")
+def painel_contador():
+    return render_template("dashboard_contador.html")
+
+
+# ---------------- LOTES ----------------
 
 
 # ---------------- LOTES ----------------
