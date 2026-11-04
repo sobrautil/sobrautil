@@ -391,35 +391,45 @@ def painel():
 
 
 
+
 @app.route("/painel/doador")
 @exige_perfil("doador")
 def painel_doador():
-    return render_template("dashboard.html")
 
+    try:
+        dados = consulta("""
+            SELECT
+                (SELECT COUNT(*) FROM LoteAlimento)
+                    AS total_lotes,
 
+                (SELECT COUNT(*) FROM LoteAlimento
+                    WHERE status = 'Disponível')
+                    AS lotes_disponiveis,
+                         
 
-@app.route("/painel/ong")
-@exige_perfil("entidade")
-def painel_ong():
-    dados = consulta("""
-        SELECT
-            (SELECT COUNT(*) FROM LoteAlimento)
-                AS total_lotes,
-            (SELECT COUNT(*) FROM LoteAlimento
-                WHERE status = 'Disponível')
-                AS lotes_disponiveis,
-            (SELECT COUNT(*) FROM Doacao)
-                AS total_doacoes,
-            (SELECT COUNT(*) FROM ONG)
-                AS total_ongs,
-            (SELECT COALESCE(SUM(valorTotalCusto), 0)
-                FROM RelatorioFiscal)
-                AS custos_fiscais
-    """, uma=True)
+                (SELECT COUNT(*) FROM Doacao)
+                    AS total_doacoes,
 
-    return render_template("dashboard.html", dados=dados)
+                (SELECT COUNT(*) FROM ONG)
+                    AS total_ongs
+        """, uma=True)
 
+        return render_template(
+            "dashboard.html",
+            dados=dados
+        )
 
+    except Error:
+        app.logger.exception(
+            "Erro ao carregar o painel do doador."
+        )
+
+        flash(
+            "Não foi possível carregar os dados do painel.",
+            "erro"
+        )
+
+        return redirect(url_for("index"))
 
 @app.route("/painel/contador")
 @exige_perfil("contador")
