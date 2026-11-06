@@ -1,0 +1,54 @@
+```html
+{% extends "base.html" %}
+
+{% block title %}Recuperar senha | Sobrautil{% endblock %}
+
+{% block conteudo %}
+
+<section class="auth-page">
+    <div class="auth-card">
+
+        <span class="eyebrow green">RECUPERAÇÃO DE ACESSO</span>
+
+        <h1>Esqueceu sua senha?</h1>
+
+        <p>
+            Informe seu e-mail cadastrado para receber
+            um link de recuperação.
+        </p>
+
+        {% with mensagens = get_flashed_messages(with_categories=true) %}
+            {% for categoria, mensagem in mensagens %}
+                <div class="flash-message {{ categoria }}">
+                    {{ mensagem }}
+                </div>
+            {% endfor %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('recuperar_senha') }}">
+
+            <label for="email">E-mail cadastrado</label>
+
+            <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="seuemail@exemplo.com"
+                required
+            >
+
+            <button class="btn btn-green btn-full" type="submit">
+                ENVIAR LINK DE RECUPERAÇÃO
+            </button>
+
+        </form>
+
+        <p class="form-note">
+            <a href="{{ url_for('login') }}">Voltar para o login</a>
+        </p>
+
+    </div>
+</section>
+
+{% endblock %}
+```

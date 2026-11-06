@@ -1,9 +1,13 @@
-# Configure os dados de acesso ao seu MySQL.
-# Use a senha definida no CREATE USER / ALTER USER do seu banco.
 DB_CONFIG = {
     "host": "localhost",
-    "user": "sobrautil_user3",
-    "password": "SuaSenha123!",
-    "database": "sobrautil",
-    "port": 3306,
+    "user": "root",
+    "password": "SUA_SENHA_MYSQL",
+    "database": "sobrautil"
+}
+
+EMAIL_CONFIG = {
+    "SMTP_SERVER": "smtp.gmail.com",
+    "SMTP_PORT": 587,
+    "EMAIL_USER": "SEU_EMAIL@gmail.com",
+    "EMAIL_PASSWORD": "SUA_SENHA_DE_APP"
 }

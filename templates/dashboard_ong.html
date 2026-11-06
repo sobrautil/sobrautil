@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Painel ONG | Sobrautil{% endblock %}
+
+{% block conteudo %}
+
+<section class="dashboard-hero">
+    <div class="dashboard-container">
+        <p class="eyebrow">ÁREA DA INSTITUIÇÃO</p>
+
+        <h1>Painel Sobrautil - ONG</h1>
+
+        <p>
+            Olá, {{ session.get('email', '') }}.
+            Acompanhe suas doações e alimentos disponíveis.
+        </p>
+    </div>
+</section>
+
+<section class="dashboard-content">
+
+    <div class="dashboard-grid">
+
+        <div class="dashboard-card">
+            <p>Alimentos disponíveis</p>
+            <h2>{{ total_lotes }}</h2>
+            <a href="{{ url_for('ongs') }}">Ver alimentos →</a>
+        </div>
+
+        <div class="dashboard-card">
+            <p>Doações registradas</p>
+            <h2>{{ total_doacoes }}</h2>
+            <a href="{{ url_for('ongs') }}">Ver doações →</a>
+        </div>
+
+        <div class="dashboard-card">
+            <p>ONGs cadastradas</p>
+            <h2>{{ total_ongs }}</h2>
+            <a href="{{ url_for('ongs') }}">Ver instituições →</a>
+        </div>
+
+        <div class="dashboard-card">
+            <p>Lotes cadastrados</p>
+            <h2>{{ total_lotes_cadastrados }}</h2>
+            <a href="{{ url_for('ongs') }}">Consultar lotes →</a>
+        </div>
+
+    </div>
+
+    <div class="dashboard-actions">
+        <h2>Acesso rápido</h2>
+
+        <a href="{{ url_for('ongs') }}" class="btn-dashboard">
+            Consultar alimentos
+        </a>
+
+        <a href="{{ url_for('relatorios') }}"
+           class="btn-dashboard secondary">
+            Consultar relatórios
+        </a>
+    </div>
+
+</section>
+
+{% endblock %}
